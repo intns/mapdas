@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.31410.357
+VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mapdas", "mapdas.csproj", "{A30B5581-9967-4C83-9A6D-3C8E449DCE51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mapdas", "mapdas.csproj", "{4B728F41-C961-4C8E-AB0B-11DEABF02FAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A30B5581-9967-4C83-9A6D-3C8E449DCE51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A30B5581-9967-4C83-9A6D-3C8E449DCE51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A30B5581-9967-4C83-9A6D-3C8E449DCE51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A30B5581-9967-4C83-9A6D-3C8E449DCE51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B728F41-C961-4C8E-AB0B-11DEABF02FAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B728F41-C961-4C8E-AB0B-11DEABF02FAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B728F41-C961-4C8E-AB0B-11DEABF02FAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B728F41-C961-4C8E-AB0B-11DEABF02FAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {986A1A8F-363B-4DBD-9657-1831BB0BAE4D}
+		SolutionGuid = {7147EDB7-698B-40F5-9A25-E215880B3B66}
 	EndGlobalSection
 EndGlobal
