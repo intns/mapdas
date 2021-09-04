@@ -48,10 +48,22 @@ namespace mapdas
 		}
 
 		// Functionality on right click
-		private readonly ContextMenu _FileContextMenu = new ContextMenu(new MenuItem[] { new MenuItem("Open DOL"), new MenuItem("Export Filesystem"), new MenuItem("Export To Linker Map"), new MenuItem("Convert To IDC"), new MenuItem("Export Types"), new MenuItem("Close") });
-		private readonly ContextMenu _PathContextMenu = new ContextMenu(new MenuItem[] { new MenuItem("Export File"), new MenuItem("Export Types") });
-		private readonly ContextMenu _FunctionContextMenu = new ContextMenu(new MenuItem[] { new MenuItem("Export Types"), new MenuItem("Decompile") });
-
+		private readonly ContextMenu _FileContextMenu = new ContextMenu(new MenuItem[] {
+			new MenuItem("Open DOL"),
+			new MenuItem("Export Filesystem"),
+			new MenuItem("Export To Linker Map"),
+			new MenuItem("Convert To IDC"),
+			new MenuItem("Export Types"),
+			new MenuItem("Close")
+		});
+		private readonly ContextMenu _PathContextMenu = new ContextMenu(new MenuItem[] {
+			new MenuItem("Export File"),
+			new MenuItem("Export Types")
+		});
+		private readonly ContextMenu _FunctionContextMenu = new ContextMenu(new MenuItem[] {
+			new MenuItem("Export Types"),
+			new MenuItem("Decompile")
+		});
 		private void MapTree_Click(object sender, EventArgs ea)
 		{
 			MouseEventArgs e = (MouseEventArgs)ea;
@@ -651,9 +663,11 @@ namespace mapdas
 				p.StartInfo.UseShellExecute = false;
 				p.StartInfo.CreateNoWindow = true;
 				p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-				try { 
-				p.Start();
-				} catch(Exception ex)
+				try
+				{
+					p.Start();
+				}
+				catch (Exception ex)
 				{
 					if (ex.Message.ToLower().Contains("not found"))
 					{
