@@ -1,7 +1,7 @@
 # mapdas
 Tools for Gamecube and Wii symbol maps
 
-# Requirements / Dependancies:
+# Requirements / Dependencies:
 - PyiiASMH -> https://github.com/JoshuaMKW/pyiiasmh/releases
 
 # Features
