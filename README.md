@@ -1,6 +1,10 @@
 # mapdas
 Tools for Gamecube and Wii symbol maps
 
+# Special thanks
+- Arookas for the Demangler
+- JoshuaMK for vital work on the tool that allowed for the decompilation
+
 # Requirements / Dependencies:
 - PyiiASMH -> https://github.com/JoshuaMKW/pyiiasmh/releases
 
