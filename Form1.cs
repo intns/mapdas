@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using static arookas.Demangler;
 
@@ -146,7 +147,6 @@ namespace mapdas
 				set = Regex.Replace(set, @"\r\n|\n\r|\n|\r", "\r\n");
 				File.AppendAllText(outputPath, set);
 				Update();
-				DebugLog.Text += $"Done!\n";
 			}
 		}
 
@@ -666,6 +666,7 @@ namespace mapdas
 				try
 				{
 					p.Start();
+					p.WaitForExit();
 				}
 				catch (Exception ex)
 				{
@@ -674,8 +675,10 @@ namespace mapdas
 						MessageBox.Show("Install pyiiasmh before using this function!");
 						return "Unable to read\n";
 					}
+
+					MessageBox.Show(ex.Message);
+					return "Unable to read\n";
 				}
-				p.WaitForExit();
 			}
 
 			string ppc = string.Empty;
