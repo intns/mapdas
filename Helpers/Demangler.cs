@@ -1,11 +1,15 @@
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace arookas
 {
-	internal static class Demangler
+
+	static class Demangler
 	{
-		private static void DemangleTemplate(StringStream input, StringBuilder output)
+
+		static void DemangleTemplate(StringStream input, StringBuilder output)
 		{
 			output.Append('<');
 			bool end = false;
@@ -32,7 +36,7 @@ namespace arookas
 			output.Append('>');
 		}
 
-		private static void DemangleComponents(IList<ComponentInfo> components, int start, StringBuilder output)
+		static void DemangleComponents(IList<ComponentInfo> components, int start, StringBuilder output)
 		{
 			if (components.Count == 0)
 			{
@@ -51,51 +55,21 @@ namespace arookas
 
 				switch (components[start].type)
 				{
-					case ComponentType.Const:
-						output.Append("const");
-						break;
-					case ComponentType.Pointer:
-						output.Append('*');
-						break;
-					case ComponentType.Reference:
-						output.Append('&');
-						break;
-					case ComponentType.Unsigned:
-						output.Append("unsigned");
-						break;
-					case ComponentType.Ellipsis:
-						output.Append("...");
-						break;
-					case ComponentType.Void:
-						output.Append("void");
-						break;
-					case ComponentType.Bool:
-						output.Append("bool");
-						break;
-					case ComponentType.Char:
-						output.Append("char");
-						break;
-					case ComponentType.Short:
-						output.Append("short");
-						break;
-					case ComponentType.Int:
-						output.Append("int");
-						break;
-					case ComponentType.Long:
-						output.Append("long");
-						break;
-					case ComponentType.LongLong:
-						output.Append("long long");
-						break;
-					case ComponentType.Float:
-						output.Append("float");
-						break;
-					case ComponentType.Double:
-						output.Append("double");
-						break;
-					case ComponentType.Type:
-						output.Append(components[start].name);
-						break;
+					case ComponentType.Const: output.Append("const"); break;
+					case ComponentType.Pointer: output.Append('*'); break;
+					case ComponentType.Reference: output.Append('&'); break;
+					case ComponentType.Unsigned: output.Append("unsigned"); break;
+					case ComponentType.Ellipsis: output.Append("..."); break;
+					case ComponentType.Void: output.Append("void"); break;
+					case ComponentType.Bool: output.Append("bool"); break;
+					case ComponentType.Char: output.Append("char"); break;
+					case ComponentType.Short: output.Append("short"); break;
+					case ComponentType.Int: output.Append("int"); break;
+					case ComponentType.Long: output.Append("long"); break;
+					case ComponentType.LongLong: output.Append("long long"); break;
+					case ComponentType.Float: output.Append("float"); break;
+					case ComponentType.Double: output.Append("double"); break;
+					case ComponentType.Type: output.Append(components[start].name); break;
 					case ComponentType.Func:
 						{
 							output.Append(components[start].name);
@@ -144,7 +118,7 @@ namespace arookas
 			}
 		}
 
-		private static void DemangleType(StringStream input, StringBuilder output)
+		static void DemangleType(StringStream input, StringBuilder output)
 		{
 			char c = input.Peek();
 
@@ -209,7 +183,7 @@ namespace arookas
 			else
 			{
 				bool end = false;
-				List<ComponentInfo> components = new List<ComponentInfo>(10);
+				List<ComponentInfo> components = new List<ComponentInfo>(20);
 
 				do
 				{
@@ -313,7 +287,7 @@ namespace arookas
 						case 'Q':
 							{
 								int count = (input.Read() - '0');
-								StringBuilder name = new StringBuilder(100);
+								StringBuilder name = new StringBuilder(500);
 
 								while (count-- > 0)
 								{
@@ -331,8 +305,8 @@ namespace arookas
 							}
 						case 'F':
 							{
-								StringBuilder prms = new StringBuilder(100);
-								StringBuilder ret = new StringBuilder(100);
+								StringBuilder prms = new StringBuilder(500);
+								StringBuilder ret = new StringBuilder(500);
 
 								while (input.Peek() != '_')
 								{
@@ -363,7 +337,7 @@ namespace arookas
 								if ('0' <= c && c <= '9')
 								{
 									--input.Position;
-									StringBuilder name = new StringBuilder(100);
+									StringBuilder name = new StringBuilder(500);
 									DemangleType(input, name);
 									components.Insert(0, new ComponentInfo(name.ToString()));
 									end = true;
@@ -393,7 +367,7 @@ namespace arookas
 			}
 		}
 
-		private static int ScanNameEnd(StringStream input)
+		static int ScanNameEnd(StringStream input)
 		{
 			int end = input.Length;
 
@@ -405,7 +379,11 @@ namespace arookas
 				}
 
 				int digit_index = (i + 2);
-				if (input[i + 2] != 'F')
+				if (input[i + 2] == 'Q')
+				{
+					++digit_index;
+				}
+				else if (input[i + 2] != 'F')
 				{
 					char c = input[digit_index];
 
@@ -421,9 +399,9 @@ namespace arookas
 			return end;
 		}
 
-		private static string DemangleName(StringStream input)
+		static string DemangleName(StringStream input)
 		{
-			StringBuilder output = new StringBuilder(100);
+			StringBuilder output = new StringBuilder(500);
 			int end = ScanNameEnd(input);
 
 			while (input.Position < end)
@@ -451,7 +429,7 @@ namespace arookas
 		public static string Demangle(string symbol)
 		{
 			StringStream input = new StringStream(symbol);
-			StringBuilder output = new StringBuilder(100);
+			StringBuilder output = new StringBuilder(500);
 
 			string name = DemangleName(input);
 			string type = null;
@@ -534,132 +512,48 @@ namespace arookas
 							space = false;
 							break;
 						}
-					case "__nw":
-						name = " new";
-						break;
-					case "__nwa":
-						name = " new[]";
-						break;
-					case "__dl":
-						name = " delete";
-						break;
-					case "__dla":
-						name = " delete[]";
-						break;
-					case "__pl":
-						name = "+";
-						break;
-					case "__mi":
-						name = "-";
-						break;
-					case "__ml":
-						name = "*";
-						break;
-					case "__dv":
-						name = "/";
-						break;
-					case "__md":
-						name = "%";
-						break;
-					case "__er":
-						name = "^";
-						break;
-					case "__ad":
-						name = "&";
-						break;
-					case "__or":
-						name = "|";
-						break;
-					case "__co":
-						name = "~";
-						break;
-					case "__nt":
-						name = "!";
-						break;
-					case "__as":
-						name = "=";
-						break;
-					case "__lt":
-						name = "<";
-						break;
-					case "__gt":
-						name = ">";
-						break;
-					case "__apl":
-						name = "+=";
-						break;
-					case "__ami":
-						name = "-=";
-						break;
-					case "__amu":
-						name = "*=";
-						break;
-					case "__adv":
-						name = "/=";
-						break;
-					case "__amd":
-						name = "%=";
-						break;
-					case "__aer":
-						name = "^=";
-						break;
-					case "__aad":
-						name = "&=";
-						break;
-					case "__aor":
-						name = "|=";
-						break;
-					case "__ls":
-						name = "<<";
-						break;
-					case "__rs":
-						name = ">>";
-						break;
-					case "__ars":
-						name = ">>=";
-						break;
-					case "__als":
-						name = "<<=";
-						break;
-					case "__eq":
-						name = "==";
-						break;
-					case "__ne":
-						name = "!=";
-						break;
-					case "__le":
-						name = "<=";
-						break;
-					case "__ge":
-						name = ">=";
-						break;
-					case "__aa":
-						name = "&&";
-						break;
-					case "__oo":
-						name = "||";
-						break;
-					case "__pp":
-						name = "++";
-						break;
-					case "__mm":
-						name = "--";
-						break;
-					case "__cm":
-						name = ",";
-						break;
-					case "__rm":
-						name = "->*";
-						break;
-					case "__rf":
-						name = "->";
-						break;
-					case "__cl":
-						name = "()";
-						break;
-					case "__vc":
-						name = "[]";
-						break;
+					case "__nw": name = " new"; break;
+					case "__nwa": name = " new[]"; break;
+					case "__dl": name = " delete"; break;
+					case "__dla": name = " delete[]"; break;
+					case "__pl": name = "+"; break;
+					case "__mi": name = "-"; break;
+					case "__ml": name = "*"; break;
+					case "__dv": name = "/"; break;
+					case "__md": name = "%"; break;
+					case "__er": name = "^"; break;
+					case "__ad": name = "&"; break;
+					case "__or": name = "|"; break;
+					case "__co": name = "~"; break;
+					case "__nt": name = "!"; break;
+					case "__as": name = "="; break;
+					case "__lt": name = "<"; break;
+					case "__gt": name = ">"; break;
+					case "__apl": name = "+="; break;
+					case "__ami": name = "-="; break;
+					case "__amu": name = "*="; break;
+					case "__adv": name = "/="; break;
+					case "__amd": name = "%="; break;
+					case "__aer": name = "^="; break;
+					case "__aad": name = "&="; break;
+					case "__aor": name = "|="; break;
+					case "__ls": name = "<<"; break;
+					case "__rs": name = ">>"; break;
+					case "__ars": name = ">>="; break;
+					case "__als": name = "<<="; break;
+					case "__eq": name = "=="; break;
+					case "__ne": name = "!="; break;
+					case "__le": name = "<="; break;
+					case "__ge": name = ">="; break;
+					case "__aa": name = "&&"; break;
+					case "__oo": name = "||"; break;
+					case "__pp": name = "++"; break;
+					case "__mm": name = "--"; break;
+					case "__cm": name = ","; break;
+					case "__rm": name = "->*"; break;
+					case "__rf": name = "->"; break;
+					case "__cl": name = "()"; break;
+					case "__vc": name = "[]"; break;
 					default:
 						{
 							op = false;
@@ -701,7 +595,7 @@ namespace arookas
 			return output.ToString();
 		}
 
-		private enum ComponentType
+		enum ComponentType
 		{
 
 			Const,
@@ -724,7 +618,7 @@ namespace arookas
 
 		}
 
-		private struct ComponentInfo
+		struct ComponentInfo
 		{
 
 			public ComponentType type;
@@ -751,7 +645,7 @@ namespace arookas
 
 			public string Data { get; private set; }
 			public int Position { get; set; }
-			public int Length => Data.Length;
+			public int Length { get { return Data.Length; } }
 
 			public char this[int index]
 			{
@@ -791,6 +685,48 @@ namespace arookas
 
 				return Data[Position];
 			}
+
+			public string Read(int count)
+			{
+				int read = Math.Min(count, (Length - Position));
+
+				if (read <= 0)
+				{
+					return new String('\0', count);
+				}
+
+				int fill = (count - read);
+				string data = Data.Substring(Position, read);
+				Position += read;
+
+				if (fill > 0)
+				{
+					data += new String('\0', fill);
+				}
+
+				return data;
+			}
+
+			public string Peek(int count)
+			{
+				int read = Math.Min(count, (Length - Position));
+
+				if (read <= 0)
+				{
+					return new String('\0', count);
+				}
+
+				int fill = (count - read);
+				string data = Data.Substring(Position, read);
+
+				if (fill > 0)
+				{
+					data += new String('\0', fill);
+				}
+
+				return data;
+			}
+
 		}
 
 	}
