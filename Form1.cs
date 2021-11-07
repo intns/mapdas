@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static arookas.Demangler;
 
@@ -113,10 +114,16 @@ namespace mapdas
 		// OutputPath is the path where we dump everything
 		private void ExportFile(MAP file, string targetPath, string outputPath)
 		{
-			DebugLog.Text += $"Writing to {outputPath}... ";
+			//DebugLog.Text += $"Writing to {outputPath}... ";
 			foreach (MAPParsing.TextEntry node in file._TextSymbols.FindAll(x => x._Path == targetPath))
 			{
+				if (node._Address.Contains("..."))
+				{
+					continue;
+				}
+
 				string function = node._SymbolDemangled;
+
 				if (!function.Contains("("))
 				{
 					function += "(void)";
@@ -124,11 +131,7 @@ namespace mapdas
 
 				string set = $"\n\n/*\n * --INFO--\n * Address:\t{node._Address.ToUpper()}\n * Size:\t{node._Size.ToUpper()}\n */\nvoid {function}\n{{\n";
 
-				if (node._Address.Contains("..."))
-				{
-					set += "\t// UNUSED FUNCTION\n";
-				}
-				else if (file._AssociatedDol != null)
+				if (file._AssociatedDol != null)
 				{
 					// we have a DOL file we can read PPC from
 					set += "/*\n";
@@ -141,13 +144,14 @@ namespace mapdas
 					set += "\t// TODO\n";
 				}
 
-				set += "}";
+				set += "}\n";
 
 				// Normalize line endings
 				set = Regex.Replace(set, @"\r\n|\n\r|\n|\r", "\r\n");
 				File.AppendAllText(outputPath, set);
-				Update();
+				//Update();
 			}
+			//DebugLog.Text += $"Done!\n";
 		}
 
 		private void ExportFile_Click(object o, EventArgs e)
@@ -178,20 +182,43 @@ namespace mapdas
 				return;
 			}
 
-			foreach (TreeNode node in MapTree.SelectedNode.Nodes)
+			TreeNode mapFile = MapTree.SelectedNode;
+			TreeNodeCollection rootNodes = mapFile.Nodes;
+
+			int maxCountInThread = 100;
+			int amount = (int)Math.Ceiling((float)rootNodes.Count / maxCountInThread);
+
+			List<List<TreeNode>> threadToDo = new List<List<TreeNode>>();
+			for (int i = 0; i < amount; i++)
 			{
-				if (!Directory.Exists(dialog.FileName + "/" + Path.GetDirectoryName(node.Text)))
+				List<TreeNode> tempList = new List<TreeNode>();
+
+				int maxStep = Math.Min(maxCountInThread, rootNodes.Count - (maxCountInThread * i));
+				for (int j = maxCountInThread * i; j < (maxCountInThread * i) + maxStep; j++)
 				{
-					Directory.CreateDirectory(dialog.FileName + "/" + Path.GetDirectoryName(node.Text));
+					tempList.Add(rootNodes[j]);
 				}
 
-				ExportFile(_FilesOpen[_SelectedFile], node.Text, dialog.FileName + "/" + node.Text);
-				DebugLog.SelectionStart = DebugLog.Text.Length;
-				DebugLog.ScrollToCaret();
-
-				Update();
-				Application.DoEvents();
+				threadToDo.Add(tempList);
 			}
+
+			foreach (var threadNodeList in threadToDo)
+			{
+				Task.Run(() =>
+				{
+					foreach (TreeNode node in threadNodeList)
+					{
+						if (!Directory.Exists(dialog.FileName + "/" + Path.GetDirectoryName(node.Text)))
+						{
+							Directory.CreateDirectory(dialog.FileName + "/" + Path.GetDirectoryName(node.Text));
+						}
+
+						ExportFile(_FilesOpen[_SelectedFile], node.Text, dialog.FileName + "/" + node.Text);
+					}
+				});
+			}
+
+
 
 			DebugLog.Text += "Done!\n";
 		}
@@ -654,12 +681,14 @@ namespace mapdas
 				functionHex += $"{b:x2}";
 			}
 
-			File.WriteAllText("raw.txt", functionHex);
+			string randomTxt = $"{new Random(Guid.NewGuid().GetHashCode()+address.GetHashCode()).Next()}.txt";
+			string codeTxt = "code_" + randomTxt;
+			File.WriteAllText(randomTxt, functionHex);
 
 			using (Process p = new Process())
 			{
 				p.StartInfo.FileName = "pyiiasmh.exe";
-				p.StartInfo.Arguments = $"\"raw.txt\" d --codetype RAW --dest code.txt";
+				p.StartInfo.Arguments = $"\"{randomTxt}\" d --codetype RAW --dest {codeTxt}";
 				p.StartInfo.UseShellExecute = false;
 				p.StartInfo.CreateNoWindow = true;
 				p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -682,10 +711,13 @@ namespace mapdas
 			}
 
 			string ppc = string.Empty;
-			if (File.Exists("code.txt"))
+			if (File.Exists(codeTxt))
 			{
-				ppc = File.ReadAllText("code.txt");
+				ppc = File.ReadAllText(codeTxt);
+				File.Delete(codeTxt);
 			}
+
+			File.Delete(randomTxt);
 
 			return ppc.Replace("-----------------", "").Trim();
 		}
@@ -750,13 +782,15 @@ namespace mapdas
 			// Checking if the symbol map is already open
 			foreach (TreeNode files in MapTree.Nodes)
 			{
-				if (dialog.FileName == files.Text)
+				if (dialog.FileName != files.Text)
 				{
-					DialogResult result = MessageBox.Show("This symbol map has already been loaded,\nare you sure you want to add the same one?", "Symbol map already open", MessageBoxButtons.YesNo);
-					if (result != DialogResult.Yes)
-					{
-						return;
-					}
+					continue;
+				}
+
+				DialogResult result = MessageBox.Show("This symbol map has already been loaded,\nare you sure you want to add the same one?", "Symbol map already open", MessageBoxButtons.YesNo);
+				if (result != DialogResult.Yes)
+				{
+					return;
 				}
 			}
 
@@ -834,12 +868,18 @@ namespace mapdas
 				parent.Nodes[currentPath].Nodes.Add(symbol);
 			}
 
+
 			MapTree.Nodes.Add(parent);
 			MapTree.EndUpdate();
 
 			DebugLog.Text += "Done!\n";
 
 			_SelectedFile = _FilesOpen.Count;
+		}
+
+		private void MapTree_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+
 		}
 	}
 }

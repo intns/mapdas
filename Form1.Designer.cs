@@ -59,6 +59,7 @@
 			this.MapTree.Name = "MapTree";
 			this.MapTree.Size = new System.Drawing.Size(680, 601);
 			this.MapTree.TabIndex = 1;
+			this.MapTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.MapTree_AfterSelect);
 			this.MapTree.Click += new System.EventHandler(this.MapTree_Click);
 			// 
 			// menuStrip1
