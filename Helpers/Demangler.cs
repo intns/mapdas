@@ -63,6 +63,7 @@ namespace arookas
 					case ComponentType.Void: output.Append("void"); break;
 					case ComponentType.Bool: output.Append("bool"); break;
 					case ComponentType.Char: output.Append("char"); break;
+					case ComponentType.WChar: output.Append("wchar_t"); break;
 					case ComponentType.Short: output.Append("short"); break;
 					case ComponentType.Int: output.Append("int"); break;
 					case ComponentType.Long: output.Append("long"); break;
@@ -183,7 +184,7 @@ namespace arookas
 			else
 			{
 				bool end = false;
-				List<ComponentInfo> components = new List<ComponentInfo>(20);
+				List<ComponentInfo> components = new List<ComponentInfo>(50);
 
 				do
 				{
@@ -245,6 +246,12 @@ namespace arookas
 						case 'c':
 							{
 								components.Insert(0, new ComponentInfo(ComponentType.Char));
+								end = true;
+								break;
+							}
+						case 'w':
+							{
+								components.Insert(0, new ComponentInfo(ComponentType.WChar));
 								end = true;
 								break;
 							}
@@ -429,7 +436,7 @@ namespace arookas
 		public static string Demangle(string symbol)
 		{
 			StringStream input = new StringStream(symbol);
-			StringBuilder output = new StringBuilder(500);
+			StringBuilder output = new StringBuilder(1000);
 
 			string name = DemangleName(input);
 			string type = null;
@@ -606,6 +613,7 @@ namespace arookas
 			Void,
 			Bool,
 			Char,
+			WChar,
 			Short,
 			Int,
 			Long,
