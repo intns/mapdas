@@ -1,5 +1,7 @@
 using arookas;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace mapdas
@@ -42,6 +44,8 @@ namespace mapdas
 				return null;
 			}
 
+			bool updatedMap = segmentLines[0].Contains("File");
+
 			List<TextEntry> symbols = new List<TextEntry>();
 			foreach (string line in segmentLines)
 			{
@@ -54,23 +58,66 @@ namespace mapdas
 				// st = start
 				// si = size
 				// addr = address
+				// offs = offset
 				// t = type
 				// fun_n = function name
 				// fol_n = folder name
 				// fil_n = file name
 
-				// folder & used
-				Match fu_sym = Regex.Match(line, @"\s(?<st>[a-f0-9]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[a-f0-9]+)\s+(?<t>\d+)\s+(?<fun_n>[^ ]+)\s+(?<fol_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
-				// unused & folder
-				Match uf_sym = Regex.Match(line, @"\s(?<st>[A-Z]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[.]+)\s+(?<fun_n>[^ ]+)\s+(?<fol_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
-				// unused & no folder
-				Match unf_sym = Regex.Match(line, @"\s(?<st>[A-Z]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[.]+)\s+(?<fun_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
-				if (!fu_sym.Success && !uf_sym.Success && !unf_sym.Success)
+				Match symbol = null;
+				if (!updatedMap)
 				{
-					continue;
+					// folder & used
+					Match fu_sym = Regex.Match(line, @"\s(?<st>[a-f0-9]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[a-f0-9]+)\s+(?<t>\d+)\s+(?<fun_n>[^ ]+)\s+(?<fol_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
+					// unused & folder
+					Match uf_sym = Regex.Match(line, @"\s(?<st>[A-Z]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[.]+)\s+(?<fun_n>[^ ]+)\s+(?<fol_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
+					// unused & no folder
+					Match unf_sym = Regex.Match(line, @"\s(?<st>[A-Z]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[.]+)\s+(?<fun_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
+					if (!fu_sym.Success && !uf_sym.Success && !unf_sym.Success)
+					{
+						continue;
+					}
+
+					if (fu_sym.Success)
+					{
+						symbol = fu_sym;
+					}
+					else if (uf_sym.Success)
+					{
+						symbol = uf_sym;
+					}
+					else if (unf_sym.Success)
+					{
+						symbol = unf_sym;
+					}
+				}
+				else // Updated map, thanks wowjinxy for showing me these
+				{
+					// used & folder
+					Match fu_sym = Regex.Match(line, @"\s(?<st>[a-f0-9]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[a-f0-9]+)\s+(?<offs>[a-f0-9]+)\s+(?<t>\d+)\s+(?<fun_n>[^ ]+)\s+(?<fol_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
+					// unused & folder
+					Match uf_sym = Regex.Match(line, @"\s(?<st>[A-Z]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[.]+)\s+(?<offs>[a-f0-9]+)\s+(?<fun_n>[^ ]+)\s+(?<fol_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
+					// unused & no folder
+					Match unf_sym = Regex.Match(line, @"\s(?<st>[A-Z]+)\s+(?<si>[a-f0-9]+)\s+(?<addr>[.]+)\s+(?<offs>[a-f0-9]+)\s+(?<fun_n>[^ ]+)?\s(?<fil_n>[^ ]+)", RegexOptions.Compiled);
+					if (!fu_sym.Success && !uf_sym.Success && !unf_sym.Success)
+					{
+						continue;
+					}
+
+					if (fu_sym.Success)
+					{
+						symbol = fu_sym;
+					}
+					else if (uf_sym.Success)
+					{
+						symbol = uf_sym;
+					}
+					else if (unf_sym.Success)
+					{
+						symbol = unf_sym;
+					}
 				}
 
-				Match symbol = fu_sym.Success ? fu_sym : uf_sym.Success ? uf_sym : unf_sym;
 				TextEntry newTextSymbol = new TextEntry
 				{
 					_Address = symbol.Groups["addr"].Value,
@@ -81,12 +128,21 @@ namespace mapdas
 					_SymbolDemangled = Demangler.Demangle(symbol.Groups["fun_n"].Value),
 				};
 
-				string folder = symbol.Groups["fol_n"].Value.Replace(".o", "").Replace(".a", "").Replace('.', '/');
-				if (!folder.EndsWith("/"))
+				// If the .o file uses an absolute path we just recreate the entire directory 
+				// because fuck it.
+				if (!symbol.Groups["fil_n"].Value.Contains(":\\"))
 				{
-					folder += "/";
+					string folder = symbol.Groups["fol_n"].Value.Replace(".o", "").Replace(".a", "").Replace('.', '/');
+					if (!folder.EndsWith("/"))
+					{
+						folder += "/";
+					}
+					newTextSymbol._Path = folder + symbol.Groups["fil_n"].Value.Replace(".o", ".cpp");
 				}
-				newTextSymbol._Path = folder + symbol.Groups["fil_n"].Value.Replace(".o", ".cpp");
+				else
+				{
+					newTextSymbol._Path = symbol.Groups["fil_n"].Value.Replace(".o", ".cpp");
+				}
 
 				symbols.Add(newTextSymbol);
 			}

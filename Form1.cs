@@ -113,7 +113,7 @@ namespace mapdas
 		// OutputPath is the path where we dump everything
 		private void ExportFile(MAP file, string targetPath, string outputPath)
 		{
-			DebugLog.Text += $"Writing to {outputPath}... ";
+			DebugLog.Text += $"Writing to {outputPath}...\n";
 			foreach (MAPParsing.TextEntry node in file._TextSymbols.FindAll(x => x._Path == targetPath))
 			{
 				string function = node._SymbolDemangled;
@@ -182,10 +182,10 @@ namespace mapdas
 			{
 				if (!Directory.Exists(dialog.FileName + "/" + Path.GetDirectoryName(node.Text)))
 				{
-					Directory.CreateDirectory(dialog.FileName + "/" + Path.GetDirectoryName(node.Text));
+					Directory.CreateDirectory(dialog.FileName + "/" + Path.GetDirectoryName(node.Text.Replace(":", "")));
 				}
 
-				ExportFile(_FilesOpen[_SelectedFile], node.Text, dialog.FileName + "/" + node.Text);
+				ExportFile(_FilesOpen[_SelectedFile], node.Text, dialog.FileName + "/" + node.Text.Replace(":", ""));
 				DebugLog.SelectionStart = DebugLog.Text.Length;
 				DebugLog.ScrollToCaret();
 
@@ -760,7 +760,9 @@ namespace mapdas
 				}
 			}
 
+			DebugLog.Text += "Opening Map File... ";
 			MAP newFile = new MAP(File.ReadAllLines(dialog.FileName));
+
 			_FilesOpen.Add(newFile);
 
 			/* Populate tree with text data
@@ -773,7 +775,6 @@ namespace mapdas
        *      - (PARAMETERS)
        */
 
-			DebugLog.Text += "Opening Map File... ";
 			Update();
 			MapTree.BeginUpdate();
 
@@ -836,7 +837,6 @@ namespace mapdas
 
 			MapTree.Nodes.Add(parent);
 			MapTree.EndUpdate();
-
 			DebugLog.Text += "Done!\n";
 
 			_SelectedFile = _FilesOpen.Count;

@@ -30,6 +30,11 @@ namespace arookas
 							output.Append(", ");
 							break;
 						}
+					case '\0':
+						{
+							end = true;
+							break;
+						}
 				}
 			} while (!end);
 
@@ -190,6 +195,11 @@ namespace arookas
 				{
 					c = input.Read();
 
+					if (c == '\0')
+					{
+						end = true;
+					}
+
 					switch (c)
 					{
 						case 'C':
@@ -315,7 +325,7 @@ namespace arookas
 								StringBuilder prms = new StringBuilder(500);
 								StringBuilder ret = new StringBuilder(500);
 
-								while (input.Peek() != '_')
+								for (char nc = input.Peek(); nc != '_' && nc != '\0'; nc = input.Peek())
 								{
 									if (prms.Length > 0)
 									{
