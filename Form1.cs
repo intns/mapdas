@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static arookas.Demangler;
 
@@ -113,10 +114,15 @@ namespace mapdas
 		// OutputPath is the path where we dump everything
 		private void ExportFile(MAP file, string targetPath, string outputPath)
 		{
-			DebugLog.Text += $"Writing to {outputPath}...\n";
 			foreach (MAPParsing.TextEntry node in file._TextSymbols.FindAll(x => x._Path == targetPath))
 			{
+				if (node._Address.Contains("..."))
+				{
+					continue;
+				}
+
 				string function = node._SymbolDemangled;
+
 				if (!function.Contains("("))
 				{
 					function += "(void)";
@@ -124,16 +130,18 @@ namespace mapdas
 
 				string set = $"\n\n/*\n * --INFO--\n * Address:\t{node._Address.ToUpper()}\n * Size:\t{node._Size.ToUpper()}\n */\nvoid {function}\n{{\n";
 
-				if (node._Address.Contains("..."))
-				{
-					set += "\t// UNUSED FUNCTION\n";
-				}
-				else if (file._AssociatedDol != null)
+				if (file._AssociatedDol != null)
 				{
 					// we have a DOL file we can read PPC from
-					set += "/*\n";
-					set += ReadAddressFromDol(file._AssociatedDol, node._Address, node._Size);
-					set += "\n*/\n";
+					try
+					{
+						set += "/*\n" + ReadAddressFromDol(file._AssociatedDol, node._Address, node._Size) + "\n*/\n";
+					}
+					catch (Exception)
+					{
+						// Failed to read from address
+						set += "\t// TODO\n";
+					}
 				}
 				else
 				{
