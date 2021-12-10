@@ -171,7 +171,8 @@ namespace arookas
 				{
 					int start = input.Position;
 
-					while ((input.Position - start) < length)
+					while ((input.Position - start) < length
+						&& input.Position != input.Length)
 					{
 						c = input.Read();
 
