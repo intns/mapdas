@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace mapdas
 {
@@ -45,6 +46,7 @@ namespace mapdas
 			}
 
 			bool updatedMap = segmentLines[0].Contains("File");
+			DialogResult cppOrNo = MessageBox.Show("Use .cpp or .c?\n(Yes for cpp, No for c)", "Urgent", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
 			List<TextEntry> symbols = new List<TextEntry>();
 			foreach (string line in segmentLines)
@@ -137,11 +139,11 @@ namespace mapdas
 					{
 						folder += "/";
 					}
-					newTextSymbol._Path = folder + symbol.Groups["fil_n"].Value.Replace(".o", ".cpp");
+					newTextSymbol._Path = folder + symbol.Groups["fil_n"].Value.Replace(".o", cppOrNo == DialogResult.Yes ? ".cpp" : ".c");
 				}
 				else
 				{
-					newTextSymbol._Path = symbol.Groups["fil_n"].Value.Replace(".o", ".cpp");
+					newTextSymbol._Path = symbol.Groups["fil_n"].Value.Replace(".o", cppOrNo == DialogResult.Yes ? ".cpp" : ".c");
 				}
 
 				symbols.Add(newTextSymbol);
