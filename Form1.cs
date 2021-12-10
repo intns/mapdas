@@ -773,6 +773,14 @@ namespace mapdas
 
 			_FilesOpen.Add(newFile);
 
+			if (newFile._TextSymbols == null)
+			{
+				MessageBox.Show("There are no TEXT symbols in this map file!");
+				return;
+			}
+
+			DialogResult invertInputResult = MessageBox.Show("Reverse the order of all functions?", "Urgent", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
 			/* Populate tree with text data
        *
        * (FILENAME)
@@ -795,13 +803,6 @@ namespace mapdas
 
 			List<string> pathsDone = new List<string>();
 			int currentPath = -1;
-
-			if (newFile._TextSymbols == null)
-			{
-				MessageBox.Show("There are no TEXT symbols in this map file!");
-				MapTree.EndUpdate();
-				return;
-			}
 
 			foreach (MAPParsing.TextEntry node in newFile._TextSymbols)
 			{
@@ -840,7 +841,14 @@ namespace mapdas
 					}
 				}
 
-				parent.Nodes[currentPath].Nodes.Add(symbol);
+				if (invertInputResult == DialogResult.Yes)
+				{
+					parent.Nodes[currentPath].Nodes.Insert(0, symbol);
+				}
+				else
+				{
+					parent.Nodes[currentPath].Nodes.Add(symbol);
+				}
 			}
 
 			MapTree.Nodes.Add(parent);

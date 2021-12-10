@@ -135,7 +135,7 @@ namespace mapdas
 				if (!symbol.Groups["fil_n"].Value.Contains(":\\"))
 				{
 					string folder = symbol.Groups["fol_n"].Value.Replace(".o", "").Replace(".a", "").Replace('.', '/');
-					if (!folder.EndsWith("/"))
+					if (folder.Length != 0 && !folder.EndsWith("/"))
 					{
 						folder += "/";
 					}
