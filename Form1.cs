@@ -376,11 +376,6 @@ namespace mapdas
 										sw.WriteLine("\tcreate_dword({0});", string.Format("0x{0:X}", address + (i * 4)));
 									}
 								}
-								// Handle setting the size of the data
-								else
-								{
-									sw.WriteLine("\tSetType(0x{0}, \"{1}\");", match.Groups["address"].Value, "char a[0x" + match.Groups["size"].Value + "]");
-								}
 							}
 						}
 						// Handle floats/doubles
