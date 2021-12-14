@@ -18,10 +18,11 @@ Tools for Gamecube and Wii symbol maps
 - Cleaning up the exported filesystem quickly suing the Common FS Cleaner tool, that searches for easily done functions and decompiles them, furthermore it also has the capability to encase blocks of code in namespaces, given a list of namespaces
 
 # How To Use
-You must first load the symbol map by going to File -> Open -> MAP.
-At this point you can traverse the directories and files of the project; even the functions inside of the files.
-You can optionally load a DOL file to decompile individual functions and add even more features to the tool when exporting to a filesystem by right-clicking the symbol map file, and opening the DOL.
-All of the features after this will be obvious, by right clicking on the various entries in the symbol map you are presented with different options.
+Load the symbol map by clicking "Open Map", note that you can open multiple MAP files.
+
+Upon right clicking on the opened symbol map file, you can also load a DOL file.
+
+When traversing the symbol map tree, you can access the various menus by right clicking on the entries.
 
 # Menu Entries that can be seen with a right click
 ## On a Symbol Map
