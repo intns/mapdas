@@ -9,7 +9,7 @@ Tools for Gamecube and Wii symbol maps
 - PyiiASMH -> https://github.com/JoshuaMKW/pyiiasmh/releases
 
 # Features
-- Loading multiple symbol map files
+- Loads multiple symbol map files
 - Displays map files in a sorted tree
 - Parses and demangles symbols (thanks to arookas for this feature)
 - Can export symbol maps to .idc files (IDA's scripted language)
