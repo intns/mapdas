@@ -5,9 +5,6 @@ Tools for Gamecube and Wii symbol maps
 - Arookas for the Demangler
 - JoshuaMK for vital work on the tool that allowed for the decompilation
 
-# Requirements / Dependencies:
-- PyiiASMH -> https://github.com/JoshuaMKW/pyiiasmh/releases
-
 # Features
 - Loads multiple symbol map files
 - Displays map files in a sorted tree
