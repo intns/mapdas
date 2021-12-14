@@ -190,14 +190,16 @@ namespace mapdas
 			foreach (string line in segmentLines)
 			{
 				Match match = Regex.Match(line, @"\s+(?<name>[^ ]+)\s+(?<start>[a-f0-9]+)", RegexOptions.Compiled);
-				if (match.Success)
+				if (!match.Success)
 				{
-					symbols.Add(new LinkerSymbolEntry
-					{
-						_Name = match.Groups["name"].Value,
-						_Start = match.Groups["start"].Value
-					});
+					continue;
 				}
+
+				symbols.Add(new LinkerSymbolEntry
+				{
+					_Name = match.Groups["name"].Value,
+					_Start = match.Groups["start"].Value
+				});
 			}
 
 			return symbols;

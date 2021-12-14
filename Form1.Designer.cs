@@ -33,6 +33,8 @@
 			this.MapTree = new System.Windows.Forms.TreeView();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.commonFSCleanerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -65,7 +67,8 @@
 			// 
 			this.menuStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.toolsToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(680, 24);
@@ -79,6 +82,22 @@
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(75, 20);
 			this.fileToolStripMenuItem.Text = "Open Map";
 			this.fileToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
+			// 
+			// toolsToolStripMenuItem
+			// 
+			this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.commonFSCleanerToolStripMenuItem});
+			this.toolsToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+			this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+			this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
+			this.toolsToolStripMenuItem.Text = "Tools";
+			// 
+			// commonFSCleanerToolStripMenuItem
+			// 
+			this.commonFSCleanerToolStripMenuItem.Name = "commonFSCleanerToolStripMenuItem";
+			this.commonFSCleanerToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+			this.commonFSCleanerToolStripMenuItem.Text = "Common FS Cleaner";
+			this.commonFSCleanerToolStripMenuItem.Click += new System.EventHandler(this.commonFSCleanerToolStripMenuItem_Click);
 			// 
 			// Form1
 			// 
@@ -109,6 +128,8 @@
     private System.Windows.Forms.TreeView MapTree;
     private System.Windows.Forms.MenuStrip menuStrip1;
     private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-  }
+		private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem commonFSCleanerToolStripMenuItem;
+	}
 }
 

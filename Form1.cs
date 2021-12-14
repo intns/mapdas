@@ -311,12 +311,40 @@ namespace mapdas
 							continue;
 						}
 
-						if (match.Groups["type"].Value == "4")
-						{
-							string name = match.Groups["name"].Value.Trim();
+						string name = match.Groups["name"].Value.Trim();
 
+						if (name == ".text")
+						{
+							continue;
+						}
+
+						// rename items that are strings or un-named globals (const strings for instance)
+						if (name.StartsWith("@") && match.Groups["module"].Success)
+						{
+							string moduleCppFile = match.Groups["module"].Value;
+
+							for (int i = 1; i < moduleCppFile.Length; i++)
+							{
+								// See if the string has a `.a` in it
+								if (moduleCppFile[i] != 'a' || moduleCppFile[i - 1] != '.')
+								{
+									continue;
+								}
+
+								// Remove the bottom half of the string including space/tab
+								moduleCppFile = moduleCppFile.Remove(0, i + 2) + "_";
+								break;
+							}
+
+							// Insert the cppFile before the number
+							name = moduleCppFile + name.Replace("@", "");
+						}
+
+						if (match.Groups["type"].Value == "4" || match.Groups["type"].Value == "32")
+						{
 							// rename items that are the same name as essential PPC registers (r0 - r31, f0 - f31)
-							if (name.StartsWith("r") || name.StartsWith("f"))
+							if (name.Length <= 3 && int.TryParse(name.Substring(1, name.Length - 1), out int r)
+								&& (name.StartsWith("r") || name.StartsWith("f")))
 							{
 								for (int i = 0; i < 31; i++)
 								{
@@ -329,55 +357,44 @@ namespace mapdas
 								}
 							}
 
-							// rename items that are strings or un-named globals (const strings for instance)
-							if (name.StartsWith("@") && match.Groups["module"].Success)
-							{
-								string moduleCppFile = match.Groups["module"].Value;
-
-								for (int i = 1; i < moduleCppFile.Length; i++)
-								{
-									// See if the string has a `.a` in it
-									if (moduleCppFile[i] != 'a' || moduleCppFile[i - 1] != '.')
-									{
-										continue;
-									}
-
-									// Remove the bottom half of the string including space/tab
-									moduleCppFile = moduleCppFile.Remove(0, i + 2) + "_";
-									break;
-								}
-
-								// Insert the cppFile before the number
-								name = name.Insert(1, moduleCppFile);
-							}
-
-							sw.WriteLine("\tset_name(0x{0}, \"{1}\");", match.Groups["address"].Value, name);
 							// Make comments stating which .o file and the file
 							if (match.Groups["module"].Success)
 							{
 								sw.WriteLine("\tMakeComm(0x{0}, \"{1}\");", match.Groups["address"].Value, match.Groups["module"].Value.Trim());
 							}
-							// Auto-set vtables
-							if (name.StartsWith("__vt__") && match.Groups["size"].Success)
+
+							if (match.Groups["size"].Success)
 							{
-								// Get the amount of elements in the vtbl
-								int size = int.Parse(match.Groups["size"].Value, NumberStyles.HexNumber) >> 2;
-								int address = int.Parse(match.Groups["address"].Value, NumberStyles.HexNumber);
-								for (int i = 0; i < size; i++)
+								// Auto-set vtables
+								if (name.StartsWith("__vt__"))
 								{
-									sw.WriteLine("\tcreate_dword({0});", string.Format("0x{0:X}", address + (i * 4)));
+									// Get the amount of elements in the vtbl
+									int size = int.Parse(match.Groups["size"].Value, NumberStyles.HexNumber) >> 2;
+									int address = int.Parse(match.Groups["address"].Value, NumberStyles.HexNumber);
+									for (int i = 0; i < size; i++)
+									{
+										sw.WriteLine("\tcreate_dword({0});", string.Format("0x{0:X}", address + (i * 4)));
+									}
+								}
+								// Handle setting the size of the data
+								else
+								{
+									sw.WriteLine("\tSetType(0x{0}, \"{1}\");", match.Groups["address"].Value, "char a[0x" + match.Groups["size"].Value + "]");
 								}
 							}
 						}
-
 						// Handle floats/doubles
 						else if (match.Groups["type"].Value == "8")
 						{
-							string name = match.Groups["name"].Value.Trim();
-
-							sw.WriteLine("\tset_name(0x{0}, \"{1}\");", match.Groups["address"].Value, name);
 							sw.WriteLine("\tcreate_double(0x{0});", match.Groups["address"].Value);
 						}
+						// Handle C functions
+						else if (match.Groups["type"].Value == "16")
+						{
+							sw.WriteLine("\tSetType(0x{0}, \"void __cdecl {1}\");", match.Groups["address"].Value, name);
+						}
+
+						sw.WriteLine("\tset_name(0x{0}, \"{1}\");", match.Groups["address"].Value, name);
 					}
 				}
 
@@ -856,6 +873,11 @@ namespace mapdas
 			DebugLog.Text += "Done!\n";
 
 			_SelectedFile = _FilesOpen.Count;
+		}
+
+		private void commonFSCleanerToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			new DecompFillerForm().Show();
 		}
 	}
 }
