@@ -15,7 +15,7 @@ Tools for Gamecube and Wii symbol maps
 - Extracting symbols and converting it to a linker map easily for use in a decompilation project / modding project
 - Loading DOL files to extract the PowerPC assembly for functions to get a better base for decompiling
 - Viewing the hex and the PowerPC assembly of a function side by side 
-- Cleaning up the exported filesystem quickly suing the Common FS Cleaner tool, that searches for easily done functions and decompiles them, furthermore it also has the capability to encase blocks of code in namespaces, given a list of namespaces
+- Cleaning up the exported filesystem quickly suing the Common FS Cleaner tool, that searches for easily done functions and decompiles them, furthermore it also has the capability to encase blocks of code in namespaces, given a list
 
 # How To Use
 Load the symbol map by clicking "Open Map", note that you can open multiple MAP files.
